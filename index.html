@@ -350,60 +350,20 @@
                 ]
             }
         };
-                // ===================== DeepSeek API 配置 =====================
-        const DEEPSEEK_API_KEY = '';  // 替换成你真实的密钥
-        const DEEPSEEK_API_URL = 'https://api.deepseek.com/v1/chat/completions';
-
-        // ===================== 调用 DeepSeek API =====================
+        // ===================== 调用后端 API =====================
         async function callDeepSeekAPI(poseName, duration) {
-            const prompt = `你是一位专业的瑜伽教练。请为体式“${poseName}”生成一份${duration}分钟的口令。
-
-要求按以下结构输出，用中文，口语化，适合练习时跟随：
-1. 进入体式：如何进入这个体式
-2. 保持要点：用倒计时形式（${duration === 2 ? '3-2-1' : '5-4-3-2-1'}）描述保持时的身体感受和调整
-3. 退出体式：如何安全退出
-4. 注意事项：练习时的禁忌或需要留意的细节
-
-请直接按“进入体式：...保持要点：...退出体式：...注意事项：...”的格式返回，不要有多余内容。`;
-
             try {
-                const response = await axios.post(DEEPSEEK_API_URL, {
-                    model: 'deepseek-chat',
-                    messages: [
-                        { role: 'system', content: '你是一位专业的瑜伽教练，擅长用清晰的口令引导练习者完成体式。' },
-                        { role: 'user', content: prompt }
-                    ],
-                    temperature: 0.7,
-                    max_tokens: 800
-                }, {
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${DEEPSEEK_API_KEY}`
-                    }
+                const response = await axios.post('/api/deepseek', {
+                    poseName: poseName,
+                    duration: duration
                 });
 
-                const content = response.data.choices[0].message.content;
-                return parseAIResponse(content);
+                return response.data;
             } catch (error) {
                 console.error('API调用失败:', error);
-                alert('AI生成失败，请稍后重试。错误信息：' + (error.response?.data?.error?.message || error.message));
+                alert('AI生成失败，请稍后重试。错误信息：' + (error.response?.data?.error || error.message));
                 return null;
             }
-        }
-
-        // ===================== 解析 AI 返回的口令 =====================
-        function parseAIResponse(text) {
-            const result = { enter: '', hold: '', exit: '', note: '' };
-            const parts = text.split(/进入体式：|保持要点：|退出体式：|注意事项：/);
-            if (parts.length >= 5) {
-                result.enter = parts[1]?.trim() || '';
-                result.hold = parts[2]?.trim() || '';
-                result.exit = parts[3]?.trim() || '';
-                result.note = parts[4]?.trim() || '';
-            } else {
-                result.enter = text;
-            }
-            return result;
         }
 
         // ===================== 渲染 AI 生成的口令 =====================
