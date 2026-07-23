@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes" />
+    <title>自学瑜伽 · 山式</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: #f7f8fa;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            padding: 20px 16px 40px;
+        }
+
+        .app {
+            max-width: 420px;
+            width: 100%;
+            background: #ffffff;
+            border-radius: 32px;
+            padding: 24px 20px 32px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+        }
+
+        .logo {
+            font-size: 20px;
+            font-weight: 600;
+            color: #2c3e50;
+            letter-spacing: 0.5px;
+        }
+        .logo span {
+            color: #a8b8c8;
+            font-weight: 400;
+        }
+
+        .current-pose {
+            font-size: 14px;
+            color: #7f8c8d;
+            background: #f0f2f5;
+            padding: 4px 14px;
+            border-radius: 20px;
+        }
+
+        .pose-select {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
+            overflow-x: auto;
+            padding-bottom: 4px;
+        }
+
+        .pose-card {
+            flex: 0 0 auto;
+            padding: 14px 24px;
+            border-radius: 16px;
+            border: 1.5px solid #e8edf3;
+            background: #ffffff;
+            text-align: center;
+            min-width: 100px;
+            transition: all 0.2s;
+        }
+
+        .pose-card.active {
+            border-color: #2c3e50;
+            background: #2c3e50;
+        }
+        .pose-card.active .pose-name {
+            color: #ffffff;
+        }
+
+        .pose-name {
+            font-size: 16px;
+            font-weight: 500;
+            color: #2c3e50;
+        }
+        .pose-sub {
+            font-size: 12px;
+            color: #95a5a6;
+            margin-top: 2px;
+        }
+        .pose-card.active .pose-sub {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .duration-section {
+            margin-bottom: 20px;
+        }
+
+        .duration-label {
+            font-size: 13px;
+            color: #7f8c8d;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .duration-group {
+            display: flex;
+            gap: 12px;
+        }
+
+        .duration-btn {
+            flex: 1;
+            padding: 12px 0;
+            border-radius: 14px;
+            border: 1.5px solid #e8edf3;
+            background: #ffffff;
+            font-size: 15px;
+            font-weight: 500;
+            color: #95a5a6;
+            transition: all 0.2s;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .duration-btn.active {
+            border-color: #2c3e50;
+            background: #2c3e50;
+            color: #ffffff;
+        }
+
+        .duration-btn .sub {
+            font-size: 11px;
+            font-weight: 400;
+            display: block;
+            margin-top: 2px;
+            opacity: 0.7;
+        }
+
+        .start-btn {
+            width: 100%;
+            padding: 16px 0;
+            border: none;
+            border-radius: 16px;
+            background: #2c3e50;
+            color: #ffffff;
+            font-size: 17px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-bottom: 24px;
+            letter-spacing: 0.5px;
+        }
+
+        .start-btn:active {
+            transform: scale(0.97);
+            background: #1a2a3a;
+        }
+
+        .script-area {
+            background: #f8f9fb;
+            border-radius: 20px;
+            padding: 20px 18px;
+            min-height: 200px;
+            display: none;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .script-area.visible {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            0% {
+                opacity: 0;
+                transform: translateY(12px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .script-section {
+            margin-bottom: 16px;
+        }
+        .script-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .script-section .label {
+            font-size: 13px;
+            font-weight: 600;
+            color: #2c3e50;
+            letter-spacing: 0.3px;
+            margin-bottom: 4px;
+        }
+
+        .script-section .content {
+            font-size: 15px;
+            line-height: 1.8;
+            color: #2c3e50;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        .script-section .content .num {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .note-list {
+            padding-left: 0;
+            list-style: none;
+            margin: 0;
+        }
+
+        .note-list li {
+            position: relative;
+            padding-left: 18px;
+            line-height: 1.8;
+            font-size: 15px;
+            color: #2c3e50;
+        }
+
+        .note-list li::before {
+            content: "•";
+            position: absolute;
+            left: 0;
+            color: #2c3e50;
+            font-weight: 600;
+        }
+
+        .placeholder-text {
+            color: #bdc3c7;
+            font-size: 14px;
+            text-align: center;
+            padding: 40px 0;
+        }
+
+        .footer {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 12px;
+            color: #bdc3c7;
+        }
+
+        @media (max-width: 400px) {
+            .app {
+                padding: 16px 14px 24px;
+            }
+            .pose-card {
+                padding: 10px 16px;
+                min-width: 70px;
+            }
+            .pose-name {
+                font-size: 14px;
+            }
+            .duration-btn {
+                font-size: 14px;
+                padding: 10px 0;
+            }
+            .script-section .content {
+                font-size: 14px;
+            }
+            .note-list li {
+                font-size: 14px;
+            }
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<body>
+
+    <div class="app">
+        <!-- 头部 -->
+        <div class="header">
+            <div class="logo">🧘 自学瑜伽 <span>· 山式</span></div>
+            <div class="current-pose">山式</div>
+        </div>
+
+        <!-- 体式选择（MVP仅山式） -->
+        <div class="pose-select">
+            <div class="pose-card active">
+                <img src="https://i.postimg.cc/xT0KQDBS/16383dbe-5591-4abf-a499-37f378f89616.png" alt="山式" style="width:100%; max-width:280px; border-radius:12px; margin:0 auto 8px; display:block;" />
+                <div class="pose-name">山式</div>
+                <div class="pose-sub">Tadasana</div>
+            </div>
+        </div>
+
+        <!-- 时长选择 -->
+        <div class="duration-section">
+            <span class="duration-label">选择练习时长</span>
+            <div class="duration-group">
+                <button class="duration-btn active" data-duration="2">
+                    2分钟
+                    <span class="sub">排课/串联</span>
+                </button>
+                <button class="duration-btn" data-duration="5">
+                    5分钟
+                    <span class="sub">精练/扣细节</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- 开始按钮 -->
+        <button class="start-btn" id="startBtn">开始练习</button>
+
+        <!-- 口令展示区 -->
+        <div class="script-area" id="scriptArea">
+            <!-- 由 JavaScript 动态渲染 -->
+        </div>
+
+        <div class="footer">基于《瑜伽之光》· 文字口令版</div>
+    </div>
+
+    <script>
+        // ===================== 数据 =====================
+        const data = {
+            // 2分钟版本
+            2: {
+                enter: '双脚并拢，脚跟与脚趾相触，膝部绷直，收腹挺胸，脊柱伸展。',
+                hold: `保持3个呼吸：
+        3-身体重量均匀分布在双脚上
+        2-膝部绷直，收腹挺胸
+        1-稳定站立，自然呼吸`,
+                exit: '自然放松，回到站立状态。',
+                note: [
+                    '膝部超伸者可微屈膝盖；',
+                    '孕期或腰部不适者双脚分开与髋同宽。'
+                ]
+            },
+            // 5分钟版本
+            5: {
+                enter: '双脚并拢，脚跟与大脚趾相触，跖骨头接触地面。膝部绷直，膝盖上提，收髋部。收腹挺胸，脊柱向上伸展，颈部挺直。',
+                hold: `保持5个呼吸：
+        5-双脚均匀扎根，感受重量均匀分布在脚跟和脚趾
+        4-膝部绷直，大腿前侧收紧
+        3-收腹，胸腔上提，脊柱延展
+        2-颈部拉长，头顶心找向天空
+        1-保持自然呼吸，感受身体如山般稳定`,
+                exit: '呼气，缓慢落下双臂，回到自然站立。感受双脚站立的感觉，调整1-2个呼吸。',
+                note: [
+                    '膝部超伸者微屈膝盖；',
+                    '站立时不要把重心压在脚跟或脚趾上；',
+                    '孕期或腰部不适者双脚分开与髋同宽。'
+                ]
+            }
+        };
+                // ===================== DeepSeek API 配置 =====================
+        const DEEPSEEK_API_KEY = '';  // 替换成你真实的密钥
+        const DEEPSEEK_API_URL = 'https://api.deepseek.com/v1/chat/completions';
+
+        // ===================== 调用 DeepSeek API =====================
+        async function callDeepSeekAPI(poseName, duration) {
+            const prompt = `你是一位专业的瑜伽教练。请为体式“${poseName}”生成一份${duration}分钟的口令。
+
+要求按以下结构输出，用中文，口语化，适合练习时跟随：
+1. 进入体式：如何进入这个体式
+2. 保持要点：用倒计时形式（${duration === 2 ? '3-2-1' : '5-4-3-2-1'}）描述保持时的身体感受和调整
+3. 退出体式：如何安全退出
+4. 注意事项：练习时的禁忌或需要留意的细节
+
+请直接按“进入体式：...保持要点：...退出体式：...注意事项：...”的格式返回，不要有多余内容。`;
+
+            try {
+                const response = await axios.post(DEEPSEEK_API_URL, {
+                    model: 'deepseek-chat',
+                    messages: [
+                        { role: 'system', content: '你是一位专业的瑜伽教练，擅长用清晰的口令引导练习者完成体式。' },
+                        { role: 'user', content: prompt }
+                    ],
+                    temperature: 0.7,
+                    max_tokens: 800
+                }, {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${DEEPSEEK_API_KEY}`
+                    }
+                });
+
+                const content = response.data.choices[0].message.content;
+                return parseAIResponse(content);
+            } catch (error) {
+                console.error('API调用失败:', error);
+                alert('AI生成失败，请稍后重试。错误信息：' + (error.response?.data?.error?.message || error.message));
+                return null;
+            }
+        }
+
+        // ===================== 解析 AI 返回的口令 =====================
+        function parseAIResponse(text) {
+            const result = { enter: '', hold: '', exit: '', note: '' };
+            const parts = text.split(/进入体式：|保持要点：|退出体式：|注意事项：/);
+            if (parts.length >= 5) {
+                result.enter = parts[1]?.trim() || '';
+                result.hold = parts[2]?.trim() || '';
+                result.exit = parts[3]?.trim() || '';
+                result.note = parts[4]?.trim() || '';
+            } else {
+                result.enter = text;
+            }
+            return result;
+        }
+
+        // ===================== 渲染 AI 生成的口令 =====================
+        function renderAIScript(data) {
+            const html = `
+                <div class="script-section">
+                    <div class="label">📋 进入体式</div>
+                    <div class="content">${data.enter}</div>
+                </div>
+                <div class="script-section">
+                    <div class="label">⏳ 保持要点</div>
+                    <div class="content">${data.hold.replace(/\n/g, '<br />')}</div>
+                </div>
+                <div class="script-section">
+                    <div class="label">🔁 退出体式</div>
+                    <div class="content">${data.exit}</div>
+                </div>
+                <div class="script-section">
+                    <div class="label">⚠️ 注意事项</div>
+                    <div class="content">${data.note || '暂无'}</div>
+                </div>
+            `;
+            scriptArea.innerHTML = html;
+            scriptArea.classList.add('visible');
+        }
+
+        // ===================== DOM 引用 =====================
+
+        const durationBtns = document.querySelectorAll('.duration-btn');
+        const startBtn = document.getElementById('startBtn');
+        const scriptArea = document.getElementById('scriptArea');
+
+        let currentDuration = 2;
+
+        // ===================== 时长切换 =====================
+
+        durationBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                durationBtns.forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                currentDuration = parseInt(this.dataset.duration, 10);
+                if (scriptArea.classList.contains('visible')) {
+                    renderScript(currentDuration);
+                }
+            });
+        });
+
+        // ===================== 渲染口令 =====================
+
+        function renderScript(duration) {
+            const d = data[duration];
+            if (!d) return;
+
+            // 处理 hold（保持要点）
+            const holdLines = d.hold.split('\n').filter(line => line.trim() !== '');
+            let holdHtml = '';
+            holdLines.forEach(line => {
+                const trimmed = line.trim();
+                const match = trimmed.match(/^(\d+)-(.+)/);
+                if (match) {
+                    holdHtml += `<div><span class="num">${match[1]}</span> ${match[2]}</div>`;
+                } else {
+                    holdHtml += `<div>${trimmed}</div>`;
+                }
+            });
+
+            // 处理 note（注意事项），转为列表
+            let noteHtml = '';
+            if (Array.isArray(d.note) && d.note.length > 0) {
+                const items = d.note.map(item => `<li>${item.trim()}</li>`).join('');
+                noteHtml = `<ul class="note-list">${items}</ul>`;
+            } else {
+                noteHtml = `<div>${d.note}</div>`;
+            }
+
+            const html = `
+                <div class="script-section">
+                    <div class="label">📋 进入体式</div>
+                    <div class="content">${d.enter}</div>
+                </div>
+                <div class="script-section">
+                    <div class="label">⏳ 保持要点</div>
+                    <div class="content">${holdHtml}</div>
+                </div>
+                <div class="script-section">
+                    <div class="label">🔁 退出体式</div>
+                    <div class="content">${d.exit}</div>
+                </div>
+                <div class="script-section">
+                    <div class="label">⚠️ 注意事项</div>
+                    <div class="content">${noteHtml}</div>
+                </div>
+            `;
+
+            scriptArea.innerHTML = html;
+            scriptArea.classList.add('visible');
+        }
+
+                // ===================== 开始按钮 =====================
+
+        startBtn.addEventListener('click', function() {
+            const poseName = '山式';
+            const duration = currentDuration;
+            const useAI = true;  // true = AI模式，false = 静态模式
+
+            if (useAI) {
+                scriptArea.innerHTML = '<div style="text-align:center;padding:20px;">⏳ AI 生成中...</div>';
+                scriptArea.classList.add('visible');
+
+                callDeepSeekAPI(poseName, duration).then(data => {
+                    if (data) {
+                        renderAIScript(data);
+                    } else {
+                        renderScript(duration);
+                    }
+                });
+            } else {
+                renderScript(duration);
+            }
+        });
+
+        // ===================== 初始化 =====================
+
+        renderScript(2);
+    </script>
+
+</body>
+</html>
